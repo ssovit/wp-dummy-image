@@ -2,6 +2,10 @@
     var l10n,
         media = wp.media;
     l10n = media.view.l10n = typeof _wpMediaViewsL10n === 'undefined' ? {} : _wpMediaViewsL10n;
+    var originalC = wp.media.controller.Library;
+    wp.media.controller.Library = originalC.extend({
+
+    });
     wp.media.view.DummyImage = wp.media.View.extend({
         tagName: 'div',
         className: 'wppress-custom',
@@ -26,59 +30,63 @@
         initialize: function() {
             original.prototype.initialize.apply(this, arguments);
             this.on('content:render:wppress_dummy_image', this.wppress_dummy_imageContent, this);
+            this.on('content:activate:wppress_dummy_image', this.wppress_dummy_imageContentActivated, this);
+            this.on('ready', this.wppress_dummy_imageContentActivated, this);
         },
         browseRouter: function(routerView) {
+            original.prototype.browseRouter.apply(this, arguments);
             routerView.set({
-                upload: {
-                    text: l10n.uploadFilesTitle,
-                    priority: 20
-                },
-                browse: {
-                    text: l10n.mediaLibraryTitle,
-                    priority: 40
-                },
                 wppress_dummy_image: {
                     text: l10n.wppressInsertDummyImageTitle,
-                    priority: 90
+                    priority: 21
                 },
             });
         },
         wppress_dummy_imageContent: function() {
             var view = new wp.media.view.DummyImage({
-                    controller: this,
-                    model: this.state().props
-                }),
-                _this = this,
+                controller: this,
+                model: this.state().props
+            });
+
+            this.content.set(view);
+        },
+        wppress_dummy_imageContentActivated: function() {
+            if (this.content.mode() != "wppress_dummy_image") {
+                return;
+            }
+            var _this = this,
                 state = _this.state(),
-                library = state.get('library');
-            var width,
-                height,
-                bg,
-                color;
-            _this.content.set(view);
-            setTimeout(function() {
-                /* I dont' know why i am doing this.. but timing out gave me proper variables for later use. */
-                width = $('.wprpess_dummy_image_wrap .dummy_width', _this.$el);
-                height = $('.wprpess_dummy_image_wrap .dummy_height', _this.$el);
-                bg = $('.wprpess_dummy_image_wrap .dummy_bg', _this.$el);
-                color = $('.wprpess_dummy_image_wrap .dummy_color', _this.$el);
-                $('.dummy_colorpicker', _this.$el).wpColorPicker();
-            }, 500);
-            this.$el.on('click', '.wprpess_dummy_image_wrap .dummy_upload', function(e) {
+                library = state.get('library'),
+                width = $('.wppress_dummy_image_wrap .dummy_width', _this.$el),
+                height = $('.wppress_dummy_image_wrap .dummy_height', _this.$el),
+                bg = $('.wppress_dummy_image_wrap .dummy_bg', _this.$el),
+                color = $('.wppress_dummy_image_wrap .dummy_color', _this.$el),
+                _data = _this.$el.data('wppress_state_data');
+            $('.dummy_colorpicker', _this.$el).wpColorPicker();
+            if (_.isObject(_data)) {
+                width.val(_data.width);
+                height.val(_data.height);
+                bg.wpColorPicker('color', _data.bg);
+                color.wpColorPicker('color', _data.color);
+            }
+
+            $('.wppress_dummy_image_wrap', _this.$el).on('click', '.dummy_upload', function(e) {
+                e.preventDefault();
                 var _width = width.val(),
                     _height = height.val(),
-                    _bg = bg.val().replace('#',""),
-                    _color = color.val().replace('#',""),
+                    _bg = bg.val().replace('#', ""),
+                    _color = color.val().replace('#', ""),
+                    __this = $(this),
                     _params = {
-                        action: "upload_dummy_image",
                         width: _width,
                         height: _height,
-                        bg:_bg,
-                        color:_color,
+                        bg: _bg,
+                        color: _color,
                     };
-                var __this = $(this);
-                __this.text('Creating Dummy Image..').attr('disabled', "disabled");
+                _this.$el.data('wppress_state_data', _params);
+                _params.action = "upload_dummy_image";
                 library._requery(true);
+                __this.text('Creating Dummy Image..').attr('disabled', "disabled");
                 $.getJSON(ajaxurl, _params, function(data) {
                     if (data.result == "success") {
                         __this.text('Upload Dummy Image').removeAttr('disabled');
@@ -87,7 +95,21 @@
                         __this.text('Upload Dummy Image').removeAttr('disabled');
                     }
                 });
-            })
+            });
+            $('.wppress_dummy_image_wrap', _this.$el).on('click', '.dummy_sizes', function(e) {
+                e.preventDefault();
+                var _w = $(this).attr('data-width'),
+                    _h = $(this).attr('data-height');
+                width.val(_w);
+                height.val(_h);
+            });
         },
+
     });
+    /* Uncomment for debugging purpose */
+    /*
+    wp.media.view.MediaFrame.Select.prototype.trigger = function() {
+        console.log('Event Triggered:', arguments);
+        original.prototype.trigger.apply(this, Array.prototype.slice.call(arguments));
+    }*/
 }(jQuery, _));

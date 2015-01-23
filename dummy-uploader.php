@@ -5,8 +5,8 @@ Plugin Name: Dummy Image Uploader
 Description: Upload Dummy Images for your choice.
 Plugin URI: http://wppress.net/
 Author: WPPress.net
-Version: 1.0
-Author URI: http://codecanyon.net/user/wppress
+Version: 2.0
+Author URI: http://wppress.net
 */
 
 class WPP_Dummy_Imager
@@ -20,7 +20,7 @@ class WPP_Dummy_Imager
 	);
 	private $defaultBG = "333333";
 	private $defaultColor = "FFFFFF";
-
+	
 	function __construct($file = false) {
 		
 		/*add_filter('media_upload_tabs', array(&$this,
@@ -41,13 +41,11 @@ class WPP_Dummy_Imager
 			'upload_image'
 		));
 	}
-	public static function output_handle($output){
+	public static function output_handle($output) {
 		header('Content-Length: ' . strlen($output));
 		return $output;
-
 	}
-	function clearn_colors($code){
-
+	function clearn_colors($code) {
 	}
 	function upload_image() {
 		$dump_url = add_query_arg(array(
@@ -56,18 +54,21 @@ class WPP_Dummy_Imager
 			'width' => $_GET['width'],
 			'height' => $_GET['height']
 		) , get_admin_url(null, 'admin-ajax.php'));
-
-		$dump_url = "http://placehold.it/".$_GET['width']."x".$_GET['height'].".png"."/".$_GET['bg']."/".$_GET['color']."/";
+		
+		$dump_url = "http://placehold.it/" . $_GET['width'] . "x" . $_GET['height'] . ".png" . "/" . $_GET['bg'] . "/" . $_GET['color'] . "/";
 		$temp_file = download_url($dump_url);
 		if (!is_wp_error($temp_file)) {
-		
+			
 			// array based on $_FILE as seen in PHP file uploads
 			$file = array(
-				'name' =>$_GET['width'] . "x" . $_GET['height']. "-dummy-image". ".png",
+				'name' => $_GET['width'] . "x" . $_GET['height'] . "-dummy-image" . ".png",
 				'type' => 'image/png',
 				'tmp_name' => $temp_file,
 				'error' => 0,
+				
 				//'size' => filesize($temp_file) ,
+				
+				
 			);
 			$overrides = array(
 				'test_form' => false,
@@ -77,7 +78,7 @@ class WPP_Dummy_Imager
 			
 			// move the temporary file into the uploads directory
 			$id = media_handle_sideload($file, false);
-			if ( is_wp_error($id) ) {
+			if (is_wp_error($id)) {
 				echo json_encode(array(
 					'result' => "error"
 				));
@@ -111,6 +112,27 @@ class WPP_Dummy_Imager
 			self::$instance = new self(__FILE__);
 		}
 		return self::$instance;
+	}
+	function get_image_sizes() {
+		global $_wp_additional_image_sizes;
+		
+		$sizes = array(
+			'thumbnail' => array() ,
+			'medium' => array() ,
+			'large' => array() ,
+			'full' => array()
+		);
+		$all_sizes = get_intermediate_image_sizes();
+		foreach ($all_sizes as $size) {
+			if (!isset($sizes[$size])) {
+				$sizes[$size] = array();
+			}
+			$sizes[$size]['label'] = $size;
+			$sizes[$size]['width'] = get_option($size . "_size_w", $_wp_additional_image_sizes[$size]['width']);
+			$sizes[$size]['height'] = get_option($size . "_size_h", $_wp_additional_image_sizes[$size]['height']);
+		}
+		unset($sizes['full']);
+		return $sizes;
 	}
 }
 
