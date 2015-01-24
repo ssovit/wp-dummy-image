@@ -32,6 +32,7 @@
                 original.prototype.initialize.apply(this, arguments);
                 this.on('content:render:wppress_dummy_image', this.wppress_dummy_imageContent, this);
                 this.on('content:activate:wppress_dummy_image', this.wppress_dummy_imageContentActivated, this);
+                this.on('content:deactivate:wppress_dummy_image', this.wppress_dummy_imageContentDeactivated, this);
                 this.on('ready', this.wppress_dummy_imageContentActivated, this);
             },
             browseRouter: function(routerView) {
@@ -70,7 +71,8 @@
                     bg.wpColorPicker('color', _data.bg);
                     color.wpColorPicker('color', _data.color);
                 }
-
+                $('.wppress_dummy_image_wrap', _this.$el).off('click','.dummy_upload');
+                $('.wppress_dummy_image_wrap', _this.$el).off('click','.dummy_sizes');
                 $('.wppress_dummy_image_wrap', _this.$el).on('click', '.dummy_upload', function(e) {
                     e.preventDefault();
                     var _width = width.val(),
@@ -91,6 +93,7 @@
                     $.getJSON(ajaxurl, _params, function(data) {
                         if (data.result == "success") {
                             __this.text('Upload Dummy Image').removeAttr('disabled');
+
                             _this.content.mode("browse");
                         } else {
                             __this.text('Upload Dummy Image').removeAttr('disabled');
@@ -103,11 +106,14 @@
                         _h = $(this).attr('data-height');
                     width.val(_w);
                     height.val(_h);
+
                 });
+            },
+            wppress_dummy_imageContentDeactivated: function() {
             },
             trigger: function() {
                 // just for debuggin purpose
-                //console.log('Event Triggered:', arguments);
+                console.log('Event Triggered:', arguments);
                 original.prototype.trigger.apply(this, Array.prototype.slice.call(arguments));
             },
         });
