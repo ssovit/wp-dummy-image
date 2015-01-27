@@ -103,6 +103,10 @@ class WPP_Dummy_Imager
 		return $strings;
 	}
 	function wp_enqueue_media() {
+		global $pagenow;
+		if($pagenow=="upload.php"){
+			return;
+		}
 		include "template.php";
 	}
 	
