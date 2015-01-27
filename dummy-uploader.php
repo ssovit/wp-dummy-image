@@ -5,7 +5,7 @@ Plugin Name: Dummy Image Uploader
 Description: Upload Dummy Images for your choice.
 Plugin URI: http://wppress.net/
 Author: WPPress.net
-Version: 2.0
+Version: 2.5
 Author URI: http://wppress.net
 */
 
@@ -18,14 +18,26 @@ class WPP_Dummy_Imager
 		"gif",
 		"jpeg"
 	);
+	private $typeKeywords = array(
+		"abstract"=>"Abstract",
+		"animals"=>"Animals",
+		"business"=>"Business",
+		"cats"=>"Cats",
+		"city"=>"City",
+		"food"=>"Food",
+		"nightlife"=>"Night Life",
+		"fashion"=>"Fashion",
+		"people"=>"People",
+		"nature"=>"Nature",
+		"sports"=>"Sports",
+		"technics"=>"Technology",
+		"transport"=>"Transports",
+	);
+	
 	private $defaultBG = "333333";
 	private $defaultColor = "FFFFFF";
 	
 	function __construct($file = false) {
-		
-		/*add_filter('media_upload_tabs', array(&$this,
-			'media_upload_tabs'
-		) , 1000, 2);*/
 		add_action('wp_enqueue_media', array(&$this,
 			'wp_enqueue_media'
 		));
@@ -41,41 +53,27 @@ class WPP_Dummy_Imager
 			'upload_image'
 		));
 	}
-	public static function output_handle($output) {
-		header('Content-Length: ' . strlen($output));
-		return $output;
-	}
-	function clearn_colors($code) {
-	}
 	function upload_image() {
-		$dump_url = add_query_arg(array(
-			'action' => 'dummy_image',
-			'type' => "png",
-			'width' => $_GET['width'],
-			'height' => $_GET['height']
-		) , get_admin_url(null, 'admin-ajax.php'));
-		
-		$dump_url = "http://placehold.it/" . $_GET['width'] . "x" . $_GET['height'] . ".png" . "/" . $_GET['bg'] . "/" . $_GET['color'] . "/";
-		$temp_file = download_url($dump_url);
+		$dump_url = "http://placehold.it/" . $_GET['width'] . "x" . $_GET['height'] . ".jpg" . "/" . $_GET['bg'] . "/" . $_GET['color'] . "/";
+		if ($_GET['image_keyword'] != "use_color") {
+			$dump_url = "http://lorempixel.com/" . $_GET['width'] . "/" . $_GET['height'] . "/" . $_GET['image_keyword'];
+		}
+		$temp_file = download_url($dump_url,30);
 		if (!is_wp_error($temp_file)) {
 			
 			// array based on $_FILE as seen in PHP file uploads
+			$name="dummy-image-".time();
 			$file = array(
-				'name' => $_GET['width'] . "x" . $_GET['height'] . "-dummy-image" . ".png",
-				'type' => 'image/png',
+				'name' => $name. ".jpg",
+				'type' => 'image/jpg',
 				'tmp_name' => $temp_file,
 				'error' => 0,
-				
-				//'size' => filesize($temp_file) ,
-				
-				
 			);
 			$overrides = array(
 				'test_form' => false,
 				'test_size' => true,
 				'test_upload' => true,
 			);
-			
 			// move the temporary file into the uploads directory
 			$id = media_handle_sideload($file, false);
 			if (is_wp_error($id)) {
@@ -84,7 +82,8 @@ class WPP_Dummy_Imager
 				));
 			} else {
 				echo json_encode(array(
-					'result' => "success"
+					'result' => "success",
+					'id' => $id
 				));
 			}
 			die();
