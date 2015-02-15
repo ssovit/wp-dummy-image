@@ -66,7 +66,6 @@
                     color = $('.wppress_dummy_image_wrap .dummy_color', _this.$el),
                     _data = $('body').data('wppress_dummy_image'),
                     selection = state.get('selection');
-
                 $('.dummy_colorpicker', _this.$el).wpColorPicker();
                 if (_.isObject(_data)) {
                     width.val(_data.width);
@@ -101,6 +100,11 @@
                             __this.text('Upload Dummy Image').removeAttr('disabled');
                             this._dummy_image_id = data.id;
                             var attach = wp.media.attachment(data.id);
+                            if (!selection.multiple) {
+                                selection.reset([], {
+                                    silent: true
+                                });
+                            }
                             selection.add(attach);
                             _this.content.mode("browse");
                         } else {
@@ -124,7 +128,7 @@
                 //console.log("Event: ", arguments);
                 original.prototype.trigger.apply(this, Array.prototype.slice.call(arguments));
             },
-            
+
         });
     });
 }(jQuery, _));

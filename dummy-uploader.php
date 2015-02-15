@@ -9,7 +9,7 @@ Version: 2.5
 Author URI: http://wppress.net
 */
 
-class WPP_Dummy_Imager
+class WPP_Dummy_Image
 {
 	private static $instance = null;
 	private $imageTypes = array(
@@ -19,19 +19,19 @@ class WPP_Dummy_Imager
 		"jpeg"
 	);
 	private $typeKeywords = array(
-		"abstract"=>"Abstract",
-		"animals"=>"Animals",
-		"business"=>"Business",
-		"cats"=>"Cats",
-		"city"=>"City",
-		"food"=>"Food",
-		"nightlife"=>"Night Life",
-		"fashion"=>"Fashion",
-		"people"=>"People",
-		"nature"=>"Nature",
-		"sports"=>"Sports",
-		"technics"=>"Technology",
-		"transport"=>"Transports",
+		"abstract" => "Abstract",
+		"animals" => "Animals",
+		"business" => "Business",
+		"cats" => "Cats",
+		"city" => "City",
+		"food" => "Food",
+		"nightlife" => "Night Life",
+		"fashion" => "Fashion",
+		"people" => "People",
+		"nature" => "Nature",
+		"sports" => "Sports",
+		"technics" => "Technology",
+		"transport" => "Transports",
 	);
 	
 	private $defaultBG = "333333";
@@ -53,18 +53,22 @@ class WPP_Dummy_Imager
 			'upload_image'
 		));
 	}
+	public static function get_instance() {
+		if (self::$instance == null) {
+			self::$instance = new self(__FILE__);
+		}
+		return self::$instance;
+	}
 	function upload_image() {
 		$dump_url = "http://placehold.it/" . $_GET['width'] . "x" . $_GET['height'] . ".jpg" . "/" . $_GET['bg'] . "/" . $_GET['color'] . "/";
 		if ($_GET['image_keyword'] != "use_color") {
 			$dump_url = "http://lorempixel.com/" . $_GET['width'] . "/" . $_GET['height'] . "/" . $_GET['image_keyword'];
 		}
-		$temp_file = download_url($dump_url,30);
+		$temp_file = download_url($dump_url, 30);
 		if (!is_wp_error($temp_file)) {
-			
-			// array based on $_FILE as seen in PHP file uploads
-			$name="dummy-image-".time();
+			$name = "dummy-image-" . time();
 			$file = array(
-				'name' => $name. ".jpg",
+				'name' => $name . ".jpg",
 				'type' => 'image/jpg',
 				'tmp_name' => $temp_file,
 				'error' => 0,
@@ -74,19 +78,14 @@ class WPP_Dummy_Imager
 				'test_size' => true,
 				'test_upload' => true,
 			);
-			// move the temporary file into the uploads directory
 			$id = media_handle_sideload($file, false);
-			if (is_wp_error($id)) {
-				echo json_encode(array(
-					'result' => "error"
-				));
-			} else {
+			if (!is_wp_error($id)) {
 				echo json_encode(array(
 					'result' => "success",
 					'id' => $id
 				));
+				die();
 			}
-			die();
 		}
 		echo json_encode(array(
 			'result' => "error"
@@ -94,7 +93,7 @@ class WPP_Dummy_Imager
 		die();
 	}
 	function admin_enqueue_scripts() {
-		wp_enqueue_script('custom', plugins_url('script.js', __FILE__) , array(
+		wp_enqueue_script('wppress-dummy-image-script', plugins_url('script.js', __FILE__) , array(
 			'media-views'
 		) , false, true);
 	}
@@ -104,18 +103,12 @@ class WPP_Dummy_Imager
 	}
 	function wp_enqueue_media() {
 		global $pagenow;
-		if($pagenow=="upload.php"){
+		if ($pagenow == "upload.php") {
 			return;
 		}
 		include "template.php";
 	}
 	
-	public static function get_instance() {
-		if (self::$instance == null) {
-			self::$instance = new self(__FILE__);
-		}
-		return self::$instance;
-	}
 	function get_image_sizes() {
 		global $_wp_additional_image_sizes;
 		
@@ -139,4 +132,4 @@ class WPP_Dummy_Imager
 	}
 }
 
-$WPP_Dummy_Imager = WPP_Dummy_Imager::get_instance();
+$WPP_Dummy_Image = WPP_Dummy_Image::get_instance();
