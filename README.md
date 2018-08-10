@@ -3,7 +3,7 @@ WordPress Dummy Image Uploader is simple yet useful WordPress Plugin for develop
 
 # Features
 
-The plugin adds an additional tab on the WordPress Media Uploader https://docs.google.com/file/d/0B7sj786Pf8F8YnAyV0hrQ3p1ems/edit?usp=drivesdk which will let you one-click upload dummy/lorem-ipsum image to the Media Library.
+The plugin adds an additional tab on the WordPress Media Uploader.
 
 With the plugin, you can either choose to upload plain image with color options for text and fill colors available in the media popup tab. Or you can simply choose the Keyword for the image.
 
