@@ -5,7 +5,7 @@ Plugin Name: Dummy Image Uploader
 Description: Upload Dummy Images for your choice.
 Plugin URI: http://wppress.net/
 Author: WPPress.net
-Version: 2.5
+Version: 3.0.0
 Author URI: http://wppress.net
 */
 
