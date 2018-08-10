@@ -22,8 +22,8 @@ The tab includes the size of the image you want for the upload. Also, the regist
 
 
 # Credits:
-- http://placehold.it (For plain color images)
-- http://lorempixel.com (For the CC licensed images)
+- https://placeholder.com/ (For plain color images)
+- https://loremflickr.com/ (For the CC licensed images)
 
 
 # NOTE
