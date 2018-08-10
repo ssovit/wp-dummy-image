@@ -38,8 +38,8 @@ class WPP_Dummy_Image
 	private $defaultColor = "FFFFFF";
 	
 	function __construct($file = false) {
-		add_action('wp_enqueue_media', array(&$this,
-			'wp_enqueue_media'
+		add_action('admin_footer', array(&$this,
+			'admin_footer'
 		));
 		
 		add_action('admin_enqueue_scripts', array(&$this,
@@ -60,9 +60,9 @@ class WPP_Dummy_Image
 		return self::$instance;
 	}
 	function upload_image() {
-		$dump_url = "http://placehold.it/" . $_GET['width'] . "x" . $_GET['height'] . ".jpg" . "/" . $_GET['bg'] . "/" . $_GET['color'] . "/";
-		if ($_GET['image_keyword'] != "use_color") {
-			$dump_url = "http://lorempixel.com/" . $_GET['width'] . "/" . $_GET['height'] . "/" . $_GET['image_keyword'];
+		$dump_url = "https://via.placeholder.com/" . $_GET['width'] . "x" . $_GET['height'] . ".jpg" . "/" . $_GET['bg'] . "/" . $_GET['color'] . "/";
+		if (trim($_GET['image_keyword']) != "") {
+			$dump_url = "https://loremflickr.com/" . $_GET['width'] . "/" . $_GET['height'] . "/" . $_GET['image_keyword'];
 		}
 		$temp_file = download_url($dump_url, 30);
 		if (!is_wp_error($temp_file)) {
@@ -101,12 +101,12 @@ class WPP_Dummy_Image
 		$strings['wppressInsertDummyImageTitle'] = __('Dummy Image', 'wppress');
 		return $strings;
 	}
-	function wp_enqueue_media() {
+	function admin_footer() {
 		global $pagenow;
 		if ($pagenow == "upload.php") {
 			return;
 		}
-		include "template.php";
+		include("template.php");
 	}
 	
 	function get_image_sizes() {
@@ -131,5 +131,4 @@ class WPP_Dummy_Image
 		return $sizes;
 	}
 }
-
-$WPP_Dummy_Image = WPP_Dummy_Image::get_instance();
+WPP_Dummy_Image::get_instance();
