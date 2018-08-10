@@ -27,4 +27,4 @@ The tab includes the size of the image you want for the upload. Also, the regist
 
 
 # NOTE
-The plugin was developed for educational purpose and nothing further. If you want to improve the plugin , please make sure to create a pull request.
+If you want to improve the plugin , please make sure to create a pull request.
